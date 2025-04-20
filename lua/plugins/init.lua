@@ -15,6 +15,9 @@ return {
         "ruff",
         "black",
         "debugpy",
+        "eslint_d",
+        "prettier",
+        "typescript-language-server",
       },
     },
   },
@@ -32,7 +35,7 @@ return {
 
   {
     "jose-elias-alvarez/null-ls.nvim",
-    ft = { "python" },
+    -- ft = { "python" },
     opts = function()
       return require "configs.null-ls"
     end,
@@ -78,12 +81,50 @@ return {
     end,
   },
 
+  -- LazyGit
+
   {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit",
     dependencies = { "nvim-lua/plenary.nvim" },
   },
 
+  -- Tmux
+
+  {
+    "aserowy/tmux.nvim",
+    config = function()
+      require("tmux").setup {
+        navigation = {
+          enable_default_keybindings = true,
+        },
+      }
+    end,
+  },
+
+  -- NPM package.json manager
+  {
+    "vuki656/package-info.nvim",
+    requires = "MunifTanjim/nui.nvim",
+    config = function()
+      require("package-info").setup()
+    end,
+  },
+
+  -- Jypescript and Javascrip
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" }, -- important!
+    opts = {
+      settings = {
+        separate_diagnostic_server = true,
+        publish_diagnostic_on = "insert_leave",
+        expose_as_code_action = "all",
+        tsserver_plugins = {},
+      },
+    },
+  },
   -- {
   -- 	"nvim-treesitter/nvim-treesitter",
   -- 	opts = {
