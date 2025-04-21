@@ -45,3 +45,8 @@ vim.opt.tabstop = 4        -- Set tab width to 4 spaces (change as needed)
 vim.opt.shiftwidth = 4     -- Indentation width
 vim.opt.softtabstop = 4    -- Makes backspace behave correctly
 
+vim.filetype.add({
+  extension = {
+    jsx = "javascriptreact",
+  },
+})

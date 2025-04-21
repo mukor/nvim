@@ -125,6 +125,49 @@ return {
       },
     },
   },
+
+  -- Rainbow parentheses
+  {
+    "hiphish/rainbow-delimiters.nvim",
+    lazy = false,
+    config = function()
+      local rainbow_delimiters = require "rainbow-delimiters"
+
+      vim.g.rainbow_delimiters = {
+        strategy = {
+          [""] = rainbow_delimiters.strategy["global"],
+          vim = rainbow_delimiters.strategy["local"],
+        },
+      }
+    end,
+  },
+
+  -- {
+  --   "hiphish/rainbow-delimiters.nvim",
+  -- config = function()
+  -- 	require "configs.rainbow"
+  -- end,
+  -- },
+
+  -- Auto-close and rename HTML/JSX tags
+  {
+    "windwp/nvim-ts-autotag",
+    ft = { "javascript", "javascriptreact", "typescript", "typescriptreact", "html" },
+    event = "InsertEnter",
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  -- Treesitter itself
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      require "configs.treesitter"
+    end,
+  },
+
   -- {
   -- 	"nvim-treesitter/nvim-treesitter",
   -- 	opts = {

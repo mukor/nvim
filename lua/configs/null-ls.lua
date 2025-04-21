@@ -21,7 +21,8 @@ local opts = {
 
 		-- node.js 
 		null_ls.builtins.formatting.prettier,   -- Prettier formatter
-		null_ls.builtins.diagnostics.eslint_d,  -- ESLint diagnostics
+		null_ls.builtins.diagnostics.eslint_d,-- ESLint diagnostics
+		null_ls.builtins.formatting.eslint_d, -- ESLint formatting
 		-- JavaScript / TypeScript (only if node project)
 		-- is_node_project() and null_ls.builtins.formatting.prettier or nil,
 		-- is_node_project() and null_ls.builtins.diagnostics.eslint_d or nil,

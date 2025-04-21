@@ -80,6 +80,25 @@ lspconfig.pyright.setup({
 --   })
 -- end
 
+-- Setup eslint
+lspconfig.eslint.setup({
+  on_attach = function(client, bufnr)
+    -- enable formatting on save
+    if client.server_capabilities.documentFormattingProvider then
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = vim.api.nvim_create_augroup("LspFormatOnSave", { clear = true }),
+        buffer = bufnr,
+        callback = function()
+          vim.lsp.buf.format({ bufnr = bufnr })
+        end,
+      })
+    end
+    -- use the default on_attach too
+    nvlsp.on_attach(client, bufnr)
+  end,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+})
 
 -- configuring single server, example: typescript
 -- lspconfig.ts_ls.setup {
