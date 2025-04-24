@@ -33,6 +33,8 @@ return {
     end,
   },
 
+-- null-ls
+
   {
     "jose-elias-alvarez/null-ls.nvim",
     -- ft = { "python" },
@@ -40,6 +42,8 @@ return {
       return require "configs.null-ls"
     end,
   },
+
+-- nvim dap ui
 
   {
     "rcarriga/nvim-dap-ui",
@@ -60,12 +64,17 @@ return {
     end,
   },
 
+-- nvim dap
+
   {
     "mfussenegger/nvim-dap",
     config = function(_, opts)
-      require("mappings").load_mappings "dap"
+		require("configs.dap")
+		require("mappings").load_mappings "dap"
     end,
   },
+
+-- python dap (debugpy)
 
   {
     "mfussenegger/nvim-dap-python",

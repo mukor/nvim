@@ -56,9 +56,9 @@ end
 lspconfig.pyright.setup({
   settings = {
     python = {
-      pythonPath = vim.fn.expand("$VIRTUAL_ENV") .. "/bin/python",
+      pythonPath = vim.fn.expand("$VIRTUAL_ENV") .. "/bin/python3",
       analysis = {
-        extraPaths = {vim.fn.expand("$VIRTUAL_ENV") .. "/lib/python3.10/site-packages"},
+        extraPaths = {vim.fn.expand("$VIRTUAL_ENV") .. "/lib/python3.13/site-packages"},
       },
       formatting ={
         provider = "black",
