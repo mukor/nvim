@@ -5,7 +5,6 @@ return {
     opts = require "configs.conform",
   },
 
-  -- These are some examples, uncomment them if you want to see them work!
   {
     "williamboman/mason.nvim",
     opts = {
@@ -33,18 +32,16 @@ return {
     end,
   },
 
--- null-ls
-
+  -- none-ls (formerly null-ls)
   {
-    "jose-elias-alvarez/null-ls.nvim",
-    -- ft = { "python" },
+    "nvimtools/none-ls.nvim",  -- ✅ Updated
+    dependencies = { "nvim-lua/plenary.nvim" },
     opts = function()
       return require "configs.null-ls"
     end,
   },
 
--- nvim dap ui
-
+  -- nvim dap ui
   {
     "rcarriga/nvim-dap-ui",
     dependencies = "mfussenegger/nvim-dap",
@@ -64,18 +61,16 @@ return {
     end,
   },
 
--- nvim dap
-
+  -- nvim dap
   {
     "mfussenegger/nvim-dap",
     config = function(_, opts)
-		require("configs.dap")
-		require("mappings").load_mappings "dap"
+      require "configs.dap"
+      require("mappings").load_mappings "dap"
     end,
   },
 
--- python dap (debugpy)
-
+  -- python dap (debugpy)
   {
     "mfussenegger/nvim-dap-python",
     ft = "python",
@@ -91,15 +86,47 @@ return {
   },
 
   -- LazyGit
-
   {
     "kdheepak/lazygit.nvim",
     cmd = "LazyGit",
     dependencies = { "nvim-lua/plenary.nvim" },
   },
 
-  -- Tmux
+  -- Claude Code
+  {
+    "greggh/claude-code.nvim",
+    keys = { "<leader>cc" },
+	cmd = "ClaudeCode",
+	dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("claude-code").setup({
+        window = {
+          position = "float",
+          size = 20,
+          enter_insert = true,
+          hide_numbers = true,
+          hide_signcolumn = true,
+          float = {
+            width = "80%",
+            height = "80%",
+            row = "center",
+            col = "center",
+            relative = "editor",
+            border = "rounded",
+          },
+        },
+        refresh = {
+          enable = true,
+          updatetime = 100,
+          timer_interval = 1000,
+          show_notifications = true,
+        },
+      })
+      vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
+    end,
+  },
 
+  -- Tmux
   {
     "aserowy/tmux.nvim",
     config = function()
@@ -114,17 +141,17 @@ return {
   -- NPM package.json manager
   {
     "vuki656/package-info.nvim",
-    requires = "MunifTanjim/nui.nvim",
+    dependencies = { "MunifTanjim/nui.nvim" },  -- ✅ Fixed
     config = function()
       require("package-info").setup()
     end,
   },
 
-  -- Jypescript and Javascrip
+  -- TypeScript and JavaScript
   {
     "pmizio/typescript-tools.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
-    ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" }, -- important!
+    ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
     opts = {
       settings = {
         separate_diagnostic_server = true,
@@ -141,7 +168,6 @@ return {
     lazy = false,
     config = function()
       local rainbow_delimiters = require "rainbow-delimiters"
-
       vim.g.rainbow_delimiters = {
         strategy = {
           [""] = rainbow_delimiters.strategy["global"],
@@ -150,13 +176,6 @@ return {
       }
     end,
   },
-
-  -- {
-  --   "hiphish/rainbow-delimiters.nvim",
-  -- config = function()
-  -- 	require "configs.rainbow"
-  -- end,
-  -- },
 
   -- Auto-close and rename HTML/JSX tags
   {
@@ -168,7 +187,7 @@ return {
     end,
   },
 
-  -- Treesitter itself
+  -- Treesitter
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -177,13 +196,8 @@ return {
     end,
   },
 
-  -- {
-  -- 	"nvim-treesitter/nvim-treesitter",
-  -- 	opts = {
-  -- 		ensure_installed = {
-  -- 			"vim", "lua", "vimdoc",
-  --      "html", "css"
-  -- 		},
-  -- 	},
-  -- },
+  {
+    "nvim-treesitter/nvim-treesitter-textobjects",
+    event = "VeryLazy",
+  },
 }

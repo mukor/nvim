@@ -20,4 +20,18 @@ configs.setup {
   indent = {
     enable = true,
   },
+  -- ✨ Add this block to enable vaf / vif / vac / vic
+  textobjects = {
+    select = {
+      enable = true,
+      lookahead = true, -- Automatically jump forward to textobj
+      keymaps = {
+        ["af"] = "@function.outer",
+        ["if"] = "@function.inner",
+        ["ac"] = "@class.outer",
+        ["ic"] = "@class.inner",
+      },
+    },
+  },
 }
+
