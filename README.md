@@ -1,4 +1,8 @@
-**This repo is supposed to used as config by NvChad users!**
+Prerequisites
+- Lazygit
+- Node https://nodejs.org/en/download
+- Go
+
 
 Prerequisites
 - Lazygit
@@ -11,7 +15,13 @@ Configurations
 - Python Language Server
 - Python Debugger
 
-Plugins 
+Plugins
+- nvim-dap
+- nvim-dap-ui
+- nvim-dap-python
 - Lazygit
-
-
+- black
+- ruff
+- mypy
+- debugpy
+- null-ls
