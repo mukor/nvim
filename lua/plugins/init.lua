@@ -8,6 +8,11 @@ return {
   -- These are some examples, uncomment them if you want to see them work!
   {
     "williamboman/mason.nvim",
+  },
+
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
     opts = {
       ensure_installed = {
         "pyright",
@@ -16,6 +21,8 @@ return {
         "black",
         "debugpy",
       },
+      auto_update = false,
+      run_on_start = true,
     },
   },
 
@@ -31,10 +38,23 @@ return {
   },
 
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
     ft = { "python" },
-    opts = function()
-      return require "configs.null-ls"
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "jay-babu/mason-null-ls.nvim",
+    },
+    config = function()
+      local null_ls = require("null-ls")
+      local opts = require "configs.null-ls"
+      null_ls.setup(opts)
+
+      -- Bridge Mason and none-ls
+      require("mason-null-ls").setup({
+        ensure_installed = { "mypy", "ruff", "black" },
+        automatic_installation = true,
+        handlers = {},
+      })
     end,
   },
 
