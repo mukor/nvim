@@ -31,7 +31,7 @@ This is a Neovim configuration built on top of NvChad v2.5, customized for Pytho
   - `jk` mapped to `<ESC>` in insert mode
   - `<leader>gg` opens LazyGit
   - DAP debugging keybindings: `<leader>db` (toggle breakpoint), `<leader>dc` (continue), `<leader>dpr` (run Python test method)
-  - Telekasten keybindings: `<leader>z` (panel), `<leader>zf` (find), `<leader>zg` (search), `<leader>zn` (new), `<leader>zd` (daily)
+  - Telekasten keybindings: `<leader>z` (panel), `<leader>zf` (find), `<leader>zg` (search), `<leader>zn` (new), `<leader>zd` (daily), `<leader>zt` (toggle todo), `<leader>zb` (backlinks), `<leader>zz` (follow link), `<leader>zc` (calendar), `<leader>zI` (insert image)
 
 ### Plugin Configuration
 

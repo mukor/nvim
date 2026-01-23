@@ -83,6 +83,11 @@ nvim .
 | Search notes | `Space z g` |
 | New note | `Space z n` |
 | Daily note | `Space z d` |
+| Toggle todo | `Space z t` |
+| Show backlinks | `Space z b` |
+| Follow link | `Space z z` |
+| Show calendar | `Space z c` |
+| Insert image | `Space z I` |
 
 See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 

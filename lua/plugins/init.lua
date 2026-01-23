@@ -227,7 +227,7 @@ return {
     dependencies = { "nvim-telescope/telescope.nvim", "renerocksai/calendar-vim" },
     cmd = "Telekasten",
     ft = "markdown",
-    keys = { "<leader>z", "<leader>zf", "<leader>zg", "<leader>zn", "<leader>zd" },
+    keys = { "<leader>z", "<leader>zf", "<leader>zg", "<leader>zn", "<leader>zd", "<leader>zt", "<leader>zb", "<leader>zz", "<leader>zc", "<leader>zI" },
     config = function()
       require("telekasten").setup({
         home = vim.fn.expand("~/notes"),
@@ -238,6 +238,11 @@ return {
       vim.keymap.set("n", "<leader>zg", "<cmd>Telekasten search_notes<CR>", { desc = "Search notes" })
       vim.keymap.set("n", "<leader>zn", "<cmd>Telekasten new_note<CR>", { desc = "New note" })
       vim.keymap.set("n", "<leader>zd", "<cmd>Telekasten goto_today<CR>", { desc = "Daily note" })
+      vim.keymap.set("n", "<leader>zt", "<cmd>Telekasten toggle_todo<CR>", { desc = "Toggle todo" })
+      vim.keymap.set("n", "<leader>zb", "<cmd>Telekasten show_backlinks<CR>", { desc = "Show backlinks" })
+      vim.keymap.set("n", "<leader>zz", "<cmd>Telekasten follow_link<CR>", { desc = "Follow link" })
+      vim.keymap.set("n", "<leader>zc", "<cmd>Telekasten show_calendar<CR>", { desc = "Show calendar" })
+      vim.keymap.set("n", "<leader>zI", "<cmd>Telekasten insert_img_link<CR>", { desc = "Insert image link" })
     end,
   },
 
