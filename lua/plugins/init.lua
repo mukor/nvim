@@ -278,4 +278,13 @@ return {
       { "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle markdown preview" },
     },
   },
+
+  -- Telescope symbols (emoji and symbol picker)
+  {
+    "nvim-telescope/telescope-symbols.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    keys = {
+      { "<leader>se", "<cmd>Telescope symbols<CR>", desc = "Insert symbol/emoji" },
+    },
+  },
 }

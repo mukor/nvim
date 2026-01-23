@@ -89,6 +89,7 @@ nvim .
 | Show calendar | `Space z c` |
 | Insert image | `Space z I` |
 | Markdown preview | `Space m p` |
+| Insert symbol/emoji | `Space s e` |
 
 See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 
