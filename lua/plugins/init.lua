@@ -267,4 +267,15 @@ return {
       require("telescope").load_extension("media_files")
     end,
   },
+
+  -- Markdown preview
+  {
+    "iamcco/markdown-preview.nvim",
+    cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+    ft = "markdown",
+    build = function() vim.fn["mkdp#util#install"]() end,
+    keys = {
+      { "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle markdown preview" },
+    },
+  },
 }

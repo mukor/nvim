@@ -88,6 +88,7 @@ nvim .
 | Follow link | `Space z z` |
 | Show calendar | `Space z c` |
 | Insert image | `Space z I` |
+| Markdown preview | `Space m p` |
 
 See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 
@@ -127,6 +128,7 @@ See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 - **telekasten.nvim** - Zettelkasten note-taking (notes stored in `~/notes`)
 - **calendar-vim** - Calendar integration for Telekasten
 - **telescope-media-files.nvim** - Image preview in Telescope
+- **markdown-preview.nvim** - Live markdown preview in browser
 
 ### Syntax & UI
 - **nvim-treesitter** - Advanced syntax highlighting
