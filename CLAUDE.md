@@ -31,6 +31,7 @@ This is a Neovim configuration built on top of NvChad v2.5, customized for Pytho
   - `jk` mapped to `<ESC>` in insert mode
   - `<leader>gg` opens LazyGit
   - DAP debugging keybindings: `<leader>db` (toggle breakpoint), `<leader>dc` (continue), `<leader>dpr` (run Python test method)
+  - Telekasten keybindings: `<leader>z` (panel), `<leader>zf` (find), `<leader>zg` (search), `<leader>zn` (new), `<leader>zd` (daily)
 
 ### Plugin Configuration
 
@@ -67,6 +68,7 @@ Key plugins from `lua/plugins/init.lua`:
 - **nvim-dap + nvim-dap-ui**: Debugging interface
 - **nvim-dap-python**: Python-specific DAP configuration (debugpy at `~/.local/share/nvim/mason/packages/debugpy/venv/bin/python`)
 - **lazygit.nvim**: Git interface integration
+- **telekasten.nvim**: Zettelkasten-style note-taking with calendar integration
 
 ## Python Development Workflow
 
@@ -99,6 +101,42 @@ Python debugging uses DAP with debugpy:
 - `<leader>dpr`: Run test method under cursor
 - DAP UI automatically opens/closes with debug sessions
 - Default launch config targets FastAPI apps at `main.py`
+
+## Note-Taking with Telekasten
+
+Telekasten provides Zettelkasten-style note-taking with wiki-links, tags, and calendar integration.
+
+### Notes Directory
+
+Notes are stored in `~/notes`. Create this directory if it doesn't exist:
+```bash
+mkdir -p ~/notes
+```
+
+### Keybindings
+
+- `<leader>z`: Open Telekasten panel (shows all available commands)
+- `<leader>zf`: Find notes (search by filename)
+- `<leader>zg`: Search notes (grep content)
+- `<leader>zn`: Create new note
+- `<leader>zd`: Go to today's daily note
+
+### Calendar Integration
+
+Telekasten includes calendar-vim for visual date navigation:
+- `:Telekasten show_calendar`: Sidebar calendar (previous/current/next month)
+- `:CalendarT`: Full-screen calendar view
+
+In the calendar:
+- Days with notes display a `+` symbol and distinct highlighting
+- Press `Enter` on a date to open or create that day's note
+
+### Features
+
+- **Wiki-links**: Use `[[note-name]]` syntax to link between notes
+- **Tags**: Add `#tag` to categorize notes
+- **Daily notes**: Journal entries organized by date
+- **Backlinks**: Find all notes that link to the current note
 
 ## Modifying Configuration
 

@@ -17,6 +17,7 @@ Personal Neovim configuration built on **NvChad v2.5** with comprehensive suppor
 - **AI**: Claude Code assistant (`Space c c`)
 - **Formatting**: Auto-format on save with black, prettier, eslint
 - **Linting**: mypy, ruff, eslint_d
+- **Note-taking**: Telekasten with calendar integration (`Space z`)
 
 ### UI Enhancements
 - **Rainbow delimiters**: Color-coded brackets/parentheses
@@ -77,6 +78,11 @@ nvim .
 | Step over | `Space d o` or `F10` |
 | Step into | `Space d i` or `F11` |
 | Step out | `Space d u` or `F12` |
+| Telekasten panel | `Space z` |
+| Find notes | `Space z f` |
+| Search notes | `Space z g` |
+| New note | `Space z n` |
+| Daily note | `Space z d` |
 
 See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 
@@ -113,11 +119,65 @@ See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 - **claude-code.nvim** - AI assistant
 - **tmux.nvim** - Tmux integration
 - **package-info.nvim** - npm package manager
+- **telekasten.nvim** - Zettelkasten note-taking (notes stored in `~/notes`)
+- **calendar-vim** - Calendar integration for Telekasten
+- **telescope-media-files.nvim** - Image preview in Telescope
 
 ### Syntax & UI
 - **nvim-treesitter** - Advanced syntax highlighting
 - **rainbow-delimiters.nvim** - Colored brackets
 - **nvim-ts-autotag** - Auto-close HTML/JSX tags
+
+## Note-Taking with Telekasten
+
+Zettelkasten-style note-taking with wiki-links, tags, and calendar integration.
+
+### Setup
+```bash
+mkdir -p ~/notes
+```
+
+### Usage
+- `Space z` opens the Telekasten panel with all commands
+- Create wiki-links with `[[note-name]]` syntax
+- Add tags with `#tag`
+- Use `:Telekasten show_calendar` for visual date navigation
+
+### Calendar
+- Days with notes show a `+` symbol
+- Press `Enter` on a date to open/create that day's note
+- `:CalendarT` for full-screen calendar view
+
+### Image Preview
+
+Telekasten uses viu for image previews. Install the appropriate backend for your platform:
+
+| Platform | Install Command | Preview Quality | Notes |
+|----------|-----------------|-----------------|-------|
+| **WSL2 (Windows Terminal)** | `cargo install viu --features=sixel` | Block characters | Neovim's terminal doesn't pass through Sixel |
+| **macOS (iTerm2)** | `brew install viu` | Smooth images | iTerm2 protocol supported natively |
+| **Ubuntu/Linux** | `sudo apt install ueberzugpp` | Pixel-perfect | ueberzugpp renders outside Neovim |
+
+#### Platform Limitations
+
+**WSL2 + Windows Terminal:**
+- Windows Terminal supports Sixel (v1.22+), and `viu` works perfectly in the terminal directly
+- However, Neovim's built-in terminal emulator doesn't pass Sixel escape sequences to the outer terminal
+- Result: Block character (▄) previews inside Neovim, which are functional but not smooth
+- Workaround: Use WezTerm with SSH, or accept block previews
+
+**macOS (iTerm2):**
+- viu auto-detects iTerm2 and uses native image protocol
+- Smooth image previews should work out of the box
+
+**Ubuntu/Linux:**
+- ueberzugpp renders images as overlays outside Neovim's terminal
+- Provides pixel-perfect image previews
+- Requires X11 or Wayland
+
+Usage:
+- `:Telekasten insert_img_link` - Browse and insert images with preview
+- `:Telescope media_files` - Browse media files directly
 
 ## Configuration Files
 

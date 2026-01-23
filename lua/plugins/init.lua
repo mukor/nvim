@@ -220,4 +220,46 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = "VeryLazy",
   },
+
+  -- Telekasten (Zettelkasten/note-taking)
+  {
+    "nvim-telekasten/telekasten.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim", "renerocksai/calendar-vim" },
+    cmd = "Telekasten",
+    ft = "markdown",
+    keys = { "<leader>z", "<leader>zf", "<leader>zg", "<leader>zn", "<leader>zd" },
+    config = function()
+      require("telekasten").setup({
+        home = vim.fn.expand("~/notes"),
+        media_previewer = "viu-previewer",
+      })
+      vim.keymap.set("n", "<leader>z", "<cmd>Telekasten panel<CR>", { desc = "Telekasten panel" })
+      vim.keymap.set("n", "<leader>zf", "<cmd>Telekasten find_notes<CR>", { desc = "Find notes" })
+      vim.keymap.set("n", "<leader>zg", "<cmd>Telekasten search_notes<CR>", { desc = "Search notes" })
+      vim.keymap.set("n", "<leader>zn", "<cmd>Telekasten new_note<CR>", { desc = "New note" })
+      vim.keymap.set("n", "<leader>zd", "<cmd>Telekasten goto_today<CR>", { desc = "Daily note" })
+    end,
+  },
+
+  -- Telescope media files (image preview for Telekasten)
+  {
+    "nvim-telescope/telescope-media-files.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "nvim-lua/popup.nvim",
+      "nvim-lua/plenary.nvim",
+    },
+    config = function()
+      require("telescope").setup({
+        extensions = {
+          media_files = {
+            filetypes = { "png", "jpg", "jpeg", "gif", "webp", "mp4", "pdf" },
+            find_cmd = "rg",
+            img_previewer = "viu",
+          },
+        },
+      })
+      require("telescope").load_extension("media_files")
+    end,
+  },
 }
