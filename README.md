@@ -130,6 +130,7 @@ See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 - **calendar-vim** - Calendar integration for Telekasten
 - **telescope-media-files.nvim** - Image preview in Telescope
 - **markdown-preview.nvim** - Live markdown preview in browser
+- **telescope-symbols.nvim** - Emoji and symbol picker
 
 ### Syntax & UI
 - **nvim-treesitter** - Advanced syntax highlighting
