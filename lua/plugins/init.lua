@@ -287,4 +287,22 @@ return {
       { "<leader>se", "<cmd>Telescope symbols<CR>", desc = "Insert symbol/emoji" },
     },
   },
+
+  -- Remote SSHFS (edit remote files via SSH)
+  {
+    "nosduco/remote-sshfs.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    cmd = { "RemoteSSHFSConnect", "RemoteSSHFSDisconnect", "RemoteSSHFSEdit", "RemoteSSHFSFindFiles", "RemoteSSHFSLiveGrep" },
+    keys = {
+      { "<leader>rc", "<cmd>RemoteSSHFSConnect<CR>", desc = "Connect to remote host" },
+      { "<leader>rd", "<cmd>RemoteSSHFSDisconnect<CR>", desc = "Disconnect from remote" },
+      { "<leader>re", "<cmd>RemoteSSHFSEdit<CR>", desc = "Edit remote ssh config" },
+      { "<leader>rf", "<cmd>RemoteSSHFSFindFiles<CR>", desc = "Find files on remote" },
+      { "<leader>rg", "<cmd>RemoteSSHFSLiveGrep<CR>", desc = "Grep on remote" },
+    },
+    config = function()
+      require("remote-sshfs").setup({})
+      require("telescope").load_extension("remote-sshfs")
+    end,
+  },
 }

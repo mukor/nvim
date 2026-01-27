@@ -18,6 +18,7 @@ Personal Neovim configuration built on **NvChad v2.5** with comprehensive suppor
 - **Formatting**: Auto-format on save with black, prettier, eslint
 - **Linting**: mypy, ruff, eslint_d
 - **Note-taking**: Telekasten with calendar integration (`Space z`)
+- **Remote editing**: Edit files on remote servers via SSHFS (`Space r c`)
 
 ### UI Enhancements
 - **Rainbow delimiters**: Color-coded brackets/parentheses
@@ -32,6 +33,7 @@ Personal Neovim configuration built on **NvChad v2.5** with comprehensive suppor
 - **Node.js** (for JS/TS language servers) - https://nodejs.org/en/download
 - **Go** (for some tools)
 - **Python** virtual environment with project dependencies
+- **sshfs** (for remote file editing) - `sudo apt install sshfs`
 
 ## Installation
 
@@ -90,6 +92,11 @@ nvim .
 | Insert image | `Space z I` |
 | Markdown preview | `Space m p` |
 | Insert symbol/emoji | `Space s e` |
+| Connect to remote | `Space r c` |
+| Disconnect remote | `Space r d` |
+| Edit SSH config | `Space r e` |
+| Find files (remote) | `Space r f` |
+| Grep (remote) | `Space r g` |
 
 See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 
@@ -131,6 +138,7 @@ See [CONFIG_SUMMARY.md](CONFIG_SUMMARY.md) for complete keybinding list.
 - **telescope-media-files.nvim** - Image preview in Telescope
 - **markdown-preview.nvim** - Live markdown preview in browser
 - **telescope-symbols.nvim** - Emoji and symbol picker
+- **remote-sshfs.nvim** - Edit remote files via SSHFS
 
 ### Syntax & UI
 - **nvim-treesitter** - Advanced syntax highlighting

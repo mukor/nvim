@@ -12,6 +12,7 @@ This is a Neovim configuration built on top of NvChad v2.5, customized for Pytho
 - Node.js
 - Go
 - Python with virtual environment support
+- sshfs (for remote file editing via SSH)
 
 ## Architecture
 
@@ -32,6 +33,7 @@ This is a Neovim configuration built on top of NvChad v2.5, customized for Pytho
   - `<leader>gg` opens LazyGit
   - DAP debugging keybindings: `<leader>db` (toggle breakpoint), `<leader>dc` (continue), `<leader>dpr` (run Python test method)
   - Telekasten keybindings: `<leader>z` (panel), `<leader>zf` (find), `<leader>zg` (search), `<leader>zn` (new), `<leader>zd` (daily), `<leader>zt` (toggle todo), `<leader>zb` (backlinks), `<leader>zz` (follow link), `<leader>zc` (calendar), `<leader>zI` (insert image)
+  - Remote SSHFS keybindings: `<leader>rc` (connect), `<leader>rd` (disconnect), `<leader>re` (edit config), `<leader>rf` (find files), `<leader>rg` (live grep)
 
 ### Plugin Configuration
 
@@ -69,6 +71,7 @@ Key plugins from `lua/plugins/init.lua`:
 - **nvim-dap-python**: Python-specific DAP configuration (debugpy at `~/.local/share/nvim/mason/packages/debugpy/venv/bin/python`)
 - **lazygit.nvim**: Git interface integration
 - **telekasten.nvim**: Zettelkasten-style note-taking with calendar integration
+- **remote-sshfs.nvim**: Edit files on remote servers via SSHFS
 
 ## Python Development Workflow
 
@@ -162,6 +165,41 @@ Update hardcoded `python3.10` paths in:
 ### Theme Changes
 
 Modify `M.base46.theme` in `lua/chadrc.lua`.
+
+## Remote File Editing with SSHFS
+
+remote-sshfs.nvim allows editing files on remote servers via SSH mount.
+
+### Prerequisites
+
+Install sshfs on your local machine:
+```bash
+sudo apt install sshfs
+```
+
+### SSH Config Setup
+
+Add remote hosts to `~/.ssh/config`:
+```
+Host myserver
+    HostName 192.168.1.100
+    User root
+```
+
+### Keybindings
+
+- `<leader>rc`: Connect to remote host (picks from `~/.ssh/config`)
+- `<leader>rd`: Disconnect from remote
+- `<leader>re`: Edit SSH config
+- `<leader>rf`: Find files on remote (Telescope)
+- `<leader>rg`: Live grep on remote (Telescope)
+
+### Usage
+
+1. Press `<leader>rc` to connect - select a host from your SSH config
+2. Files mount to `~/.sshfs/<hostname>/` by default
+3. Use `<leader>rf` and `<leader>rg` to search mounted files
+4. Press `<leader>rd` to disconnect when done
 
 ## File Structure
 
