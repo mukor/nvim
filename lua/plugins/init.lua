@@ -305,4 +305,20 @@ return {
       require("telescope").load_extension("remote-sshfs")
     end,
   },
+
+  -- Brain Rag Plugin
+  {
+    dir = "~/dev/brain-rag.nvim",
+    dependencies = { "hrsh7th/nvim-cmp", "L3MON4D3/LuaSnip" },
+    ft = "markdown",
+    config = function()
+      require("brain-rag").setup({
+        tags = {
+          brain_rag_cmd = "/home/spencer/dev/brain-rag/.venv/bin/brain-rag",
+        },
+      })
+    end,
+  },
+
+
 }
