@@ -5,8 +5,8 @@ vim.g.mapleader = " "
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 
 if not vim.uv.fs_stat(lazypath) then
-  local repo = "https://github.com/folke/lazy.nvim.git"
-  vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
+	local repo = "https://github.com/folke/lazy.nvim.git"
+	vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
 end
 
 vim.opt.rtp:prepend(lazypath)
@@ -15,14 +15,14 @@ local lazy_config = require "configs.lazy"
 
 -- load plugins
 require("lazy").setup({
-  {
-    "NvChad/NvChad",
-    lazy = false,
-    branch = "v2.5",
-    import = "nvchad.plugins",
-  },
+	{
+		"NvChad/NvChad",
+		lazy = false,
+		branch = "v2.5",
+		import = "nvchad.plugins",
+	},
 
-  { import = "plugins" },
+	{ import = "plugins" },
 }, lazy_config)
 
 -- dynamically load the virtual env
@@ -36,17 +36,11 @@ require "options"
 require "nvchad.autocmds"
 
 vim.schedule(function()
-  require "mappings"
+	require "mappings"
 end)
 
--- tabs instead of spaces
-vim.opt.expandtab = false  -- Use actual tab characters
-vim.opt.tabstop = 4        -- Set tab width to 4 spaces (change as needed)
-vim.opt.shiftwidth = 4     -- Indentation width
-vim.opt.softtabstop = 4    -- Makes backspace behave correctly
-
-vim.filetype.add({
-  extension = {
-    jsx = "javascriptreact",
-  },
-})
+vim.filetype.add {
+	extension = {
+		jsx = "javascriptreact",
+	},
+}
