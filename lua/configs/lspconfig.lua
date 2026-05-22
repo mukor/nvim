@@ -32,6 +32,20 @@ vim.lsp.config.pyright = {
 		config.settings.python = config.settings.python or {}
 		config.settings.python.pythonPath = venv.python(config.root_dir)
 	end,
+	settings = {
+		python = {
+			analysis = {
+				-- Defer lint-style diagnostics to ruff to avoid duplicate reports.
+				diagnosticSeverityOverrides = {
+					reportUnusedImport = "none",
+					reportUnusedVariable = "none",
+					reportUnusedFunction = "none",
+					reportUnusedClass = "none",
+					reportUnusedExpression = "none",
+				},
+			},
+		},
+	},
 }
 
 -- Ruff: linting via LSP diagnostics. Formatting is handled by conform (ruff_format).

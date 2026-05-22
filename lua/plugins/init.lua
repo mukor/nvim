@@ -18,7 +18,6 @@ return {
 				"stylua",
 				"pyright",
 				"ruff",
-				"mypy",
 				"debugpy",
 				"prettier",
 				-- Kept for the tsserver binary it bundles; typescript-tools.nvim
@@ -39,15 +38,6 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			require "configs.lspconfig"
-		end,
-	},
-
-	-- Linters (mypy etc.) — formatters live in conform, LSP diagnostics live in pyright/ruff
-	{
-		"mfussenegger/nvim-lint",
-		event = { "BufReadPost", "BufWritePost", "InsertLeave" },
-		config = function()
-			require "configs.lint"
 		end,
 	},
 
