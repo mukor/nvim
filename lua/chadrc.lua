@@ -11,9 +11,10 @@ M.base46 = {
 	theme = "rosepine-moon",
 
 	hl_override = {
-		-- Distinctly pink Visual selection.
-		Visual = { bg = "#6e3855" },
-		VisualNOS = { bg = "#6e3855" },
+		-- Match Ghostty's selection-background exactly (Moon's highlight med,
+		-- one notch brighter than the default Visual = overlay).
+		Visual = { bg = "#44415a" },
+		VisualNOS = { bg = "#44415a" },
 		-- Italic emphasis. @markup.italic is the newer capture, @text.emphasis
 		-- the older one — set both so it works regardless of parser version.
 		["@markup.italic"] = { italic = true },
