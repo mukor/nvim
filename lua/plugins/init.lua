@@ -95,11 +95,31 @@ return {
 	-- Claude Code — implements the same WebSocket/MCP protocol as the official
 	-- VS Code / JetBrains extensions: selection sending, diff accept/reject,
 	-- buffer/diagnostic context shared with Claude.
+	-- Uses the snacks.nvim provider so the terminal can open as a bottom
+	-- horizontal split (claudecode's native provider is vertical-only).
 	{
 		"coder/claudecode.nvim",
-		config = true,
+		dependencies = { "folke/snacks.nvim" },
+		opts = {
+			terminal = {
+				provider = "snacks",
+				snacks_win_opts = {
+					position = "bottom",
+					height = 0.40,
+				},
+			},
+		},
 		keys = {
-			{ "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude" },
+			{ "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Toggle Claude (horizontal)" },
+			{
+				"<leader>cv",
+				function()
+					require("claudecode.terminal").toggle({
+						snacks_win_opts = { position = "right", width = 0.30 },
+					})
+				end,
+				desc = "Toggle Claude (vertical)",
+			},
 			{ "<leader>cf", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
 			{ "<leader>cr", "<cmd>ClaudeCode --resume<cr>", desc = "Resume Claude" },
 			{ "<leader>cC", "<cmd>ClaudeCode --continue<cr>", desc = "Continue Claude" },

@@ -9,6 +9,10 @@ local map = vim.keymap.set
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>", { desc = "Exit insert mode" })
 
+-- Terminal: exit terminal mode AND jump back to the previously focused window
+-- in a single press. Works from any terminal pane (Claude, lazygit, etc.).
+map("t", "<C-o>", [[<C-\><C-n><C-w>p]], { desc = "Exit terminal, back to prev window" })
+
 -- LazyGit
 map("n", "<leader>gg", "<cmd>LazyGit<CR>", { desc = "Open LazyGit" })
 
