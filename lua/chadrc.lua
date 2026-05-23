@@ -8,12 +8,19 @@ local M = {}
 -- M.mappings = require "configs.mappings"
 
 M.base46 = {
-	theme = "rosepine",
+	theme = "rosepine-moon",
 
-	-- hl_override = {
-	-- 	Comment = { italic = true },
-	-- 	["@comment"] = { italic = true },
-	-- },
+	hl_override = {
+		-- Distinctly pink Visual selection.
+		Visual = { bg = "#6e3855" },
+		VisualNOS = { bg = "#6e3855" },
+		-- Italic emphasis. @markup.italic is the newer capture, @text.emphasis
+		-- the older one — set both so it works regardless of parser version.
+		["@markup.italic"] = { italic = true },
+		["@text.emphasis"] = { italic = true, fg = "yellow" },
+		Comment = { italic = true },
+		["@comment"] = { italic = true },
+	},
 }
 
 -- M.nvdash = { load_on_startup = true }
