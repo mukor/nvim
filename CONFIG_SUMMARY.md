@@ -2,75 +2,86 @@
 
 ## Overview
 
-This is a Neovim configuration built on **NvChad v2.5** with extensive support for:
-- Python development (LSP, debugging, linting, formatting)
-- JavaScript/TypeScript/React development
-- Tailwind CSS
-- Git integration
-- Enhanced debugging with DAP
-- AI assistance via Claude Code
+This is a Neovim configuration built on **NvChad v2.5**, customized for:
+- Python development (LSP, debugging, linting, formatting) with **uv**-style per-project venvs
+- JavaScript/TypeScript/React + Tailwind CSS
+- Git integration (LazyGit + gitsigns)
+- Debugging via DAP
+- AI assistance via **Claude Code** (claudecode.nvim)
+- Zettelkasten note-taking (Telekasten) and remote editing (SSHFS)
 
-**Neovim Version**: 0.11+
+**Neovim Version**: 0.11.5
 **Plugin Manager**: lazy.nvim
 **Leader Key**: `Space`
+**Theme**: `rosepine-moon` (custom, canonical Rose Pine Moon palette)
+**Indentation**: real tab characters, width 4
 
 ---
 
 ## Plugins
 
 ### Core Framework
-- **NvChad** (v2.5) - Base framework providing UI, themes, and default configurations
-- **lazy.nvim** - Modern plugin manager with lazy loading
+- **NvChad** (v2.5) — base UI, themes, defaults
+- **lazy.nvim** — plugin manager with lazy loading
 
-### Language Servers & Tools Management
-- **mason.nvim** - Package manager for LSP servers, formatters, linters
-- **mason-tool-installer.nvim** - Automatically installs configured tools on startup
-- **mason-null-ls.nvim** - Bridges Mason and none-ls for automatic tool registration
-- **nvim-lspconfig** - Quickstart configs for LSP servers
+### LSP & Tooling Management
+- **mason.nvim** — installs LSP servers / formatters / linters
+- **mason-tool-installer.nvim** — auto-installs the configured tool list on startup
+- **nvim-lspconfig** — LSP server configs (uses the modern `vim.lsp.config` / `vim.lsp.enable` API)
+
+Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugpy`, `prettier`, `typescript-language-server`.
 
 ### LSP Servers Configured
-- **pyright** - Python type checking and IntelliSense
-- **ruff** - Fast Python linter (diagnostics disabled, formatting only)
-- **html** - HTML language server
-- **cssls** - CSS language server
-- **eslint** - JavaScript/TypeScript linting with auto-fix on save
-- **tailwindcss** - Tailwind CSS IntelliSense
-- **typescript-language-server** - TypeScript/JavaScript language support
+- **pyright** — Python type checking + IntelliSense (per-workspace venv resolution; lint-style diagnostics deferred to ruff; UTF-8 position encoding to agree with ruff)
+- **ruff** — fast Python linter via LSP diagnostics (hover disabled — deferred to pyright)
+- **html** / **cssls** — web language servers
+- **eslint** — JS/TS linting with format-on-save
+- **tailwindcss** — Tailwind class IntelliSense (html/css/js/jsx/ts/tsx)
+- **typescript-tools.nvim** — TS/JS language server (used instead of the lspconfig tsserver)
+
+> Note: `none-ls`/`null-ls`, `mypy`, and `black` were removed. Python is now **pyright + ruff** only, with formatting via conform.
 
 ### Linting & Formatting
-- **none-ls.nvim** (formerly null-ls) - Injects linting/formatting into LSP workflow
-  - **mypy** - Python static type checker
-  - **ruff** - Python linter
-  - **black** - Python code formatter
-  - **eslint_d** - Fast ESLint daemon for JS/TS
-  - **prettier** - Code formatter for JS/TS/HTML/CSS/JSON
-- **conform.nvim** - Format orchestration (currently configured for stylua)
+- **conform.nvim** — formatter orchestration:
+  - Lua → `stylua`
+  - Python → `ruff_organize_imports` + `ruff_format`
+  - JS/TS/JSON/JSONC/HTML/CSS/Markdown/YAML → `prettier`
+  - Format-on-save is **off by default** (commented block in `configs/conform.lua`)
+- **eslint** LSP formats JS/TS on save (separate from conform)
 
 ### Debugging (DAP)
-- **nvim-dap** - Debug Adapter Protocol client
-- **nvim-dap-ui** - UI for nvim-dap with automatic open/close
-- **nvim-dap-python** - Python debugging with debugpy
-- **nvim-nio** - Async I/O library (required by dap-ui)
+- **nvim-dap** — Debug Adapter Protocol client
+- **nvim-dap-ui** — debug UI (auto open/close with sessions)
+- **nvim-dap-python** — Python debugging via debugpy
+- **nvim-nio** — async I/O (required by dap-ui)
+- `.vscode/launch.json` is auto-loaded on demand; a FastAPI fallback config (`backend/main.py`) is included
+
+### Editing Enhancements
+- **mini.move** — move a Visual selection or the current line with `Alt+hjkl`
+- **mini.surround** — add/delete/replace surrounding chars (`sa`/`sd`/`sr`)
+- **nvim-treesitter-textobjects** — function/class text objects (`af`/`if`/`ac`/`ic`)
+- **nvim-ts-autotag** — auto-close/rename HTML/JSX tags
+- **rainbow-delimiters.nvim** — color-coded brackets
 
 ### Syntax & Parsing
-- **nvim-treesitter** - Advanced syntax highlighting and code understanding
-  - Parsers installed: lua, vim, vimdoc, html, css, javascript, typescript, tsx, json, python
-- **nvim-treesitter-textobjects** - Text objects based on treesitter (e.g., `vaf` for function, `vic` for inner class)
-
-### UI Enhancements
-- **rainbow-delimiters.nvim** - Color-coded parentheses, brackets, and braces
-- **nvim-ts-autotag** - Auto-close and auto-rename HTML/JSX tags
+- **nvim-treesitter** (pinned to `master` branch) — parsers: lua, vim, vimdoc, html, css, javascript, typescript, tsx, json, python
 
 ### Git Integration
-- **lazygit.nvim** - Terminal UI for Git (integrates lazygit inside Neovim)
+- **lazygit.nvim** — terminal Git UI
+- **gitsigns.nvim** — hunk navigation, stage/reset/preview/blame/diff
 
 ### AI Assistance
-- **claude-code.nvim** - Claude Code AI assistant integration in Neovim
+- **claudecode.nvim** — implements the same WebSocket/MCP protocol as the official VS Code / JetBrains extensions (selection sending, diff accept/reject, shared buffer & diagnostic context). Uses the **snacks.nvim** terminal provider so the pane can open horizontal/vertical/floating.
 
-### Development Tools
-- **typescript-tools.nvim** - Enhanced TypeScript language server
-- **package-info.nvim** - View and update npm package versions in package.json
-- **tmux.nvim** - Seamless navigation between Neovim and tmux panes
+### Notes / Remote / Misc
+- **telekasten.nvim** — Zettelkasten notes with calendar (notes in `~/notes`)
+- **telescope-media-files.nvim** — image preview for Telekasten
+- **markdown-preview.nvim** — live Markdown preview in browser
+- **telescope-symbols.nvim** — emoji/symbol picker
+- **remote-sshfs.nvim** — edit remote files over SSHFS
+- **tmux.nvim** — seamless Neovim ⇆ tmux pane navigation (`Ctrl+hjkl`)
+- **package-info.nvim** — view/update npm versions in `package.json`
+- **brain-rag.nvim** (local) — semantic notes integration
 
 ---
 
@@ -78,37 +89,76 @@ This is a Neovim configuration built on **NvChad v2.5** with extensive support f
 
 ### General
 - `;` → Enter command mode (`:`)
-- `jk` → Exit insert mode (in insert mode)
+- `jk` → Exit insert mode (insert mode)
+- `<C-o>` → (terminal mode) exit terminal **and** jump back to the previously focused window in one press
 - `Space` → Leader key
 
-### Git
-- `<leader>gg` (`Space g g`) → Open LazyGit
+### Editing — Move (mini.move)
+- `Alt+h` / `Alt+l` → move selection/line left / right (by a character)
+- `Alt+j` / `Alt+k` → move selection/line down / up (auto-reindents)
+- Works in **Visual** mode (the selection) and **Normal** mode (the current line)
 
-### AI Assistant
-- `<leader>cc` (`Space c c`) → Toggle Claude Code window
+### Editing — Surround (mini.surround)
+- `sa{char}` → **add** surrounding (Visual: around selection; Normal: `sa{motion}{char}`, e.g. `saiw"`)
+- `sd{char}` → **delete** surrounding (e.g. `sd"`)
+- `sr{old}{new}` → **replace** surrounding (e.g. `sr"'`)
+- `sf` / `sF` → find surrounding right / left
+- `sh` → highlight surrounding
+- `sn` → update search range (`n_lines`)
+- Tags: `sat` then type a tag name → `<tag>…</tag>`
+
+### Editing — Text Objects (treesitter)
+- `af` / `if` → a function / inner function (e.g. `vaf`, `dif`)
+- `ac` / `ic` → a class / inner class
+
+### Git
+- `<leader>gg` → Open LazyGit
+- `]h` / `[h` → next / previous git hunk
+- `<leader>hs` → stage hunk
+- `<leader>hr` → reset hunk
+- `<leader>hp` → preview hunk
+- `<leader>hb` → blame line (full)
+- `<leader>hd` → diff this
+
+### AI Assistant (Claude Code)
+- `<leader>cc` → **Claude pane picker** — floating popup; `h/j/k/l` to select Horizontal / Vertical / Floating, each row shows what it will do (open / close / switch). The existing Claude window is moved in place so the session survives layout changes.
+- `<leader>cf` → focus Claude pane
+- `<leader>cr` → resume Claude (`--resume`)
+- `<leader>cC` → continue Claude (`--continue`)
+- `<leader>cb` → add current buffer to context
+- `<leader>cs` → (Visual) send selection to Claude
+- `<leader>ca` → accept diff
+- `<leader>cd` → deny diff
 
 ### Debugging (DAP)
 **Leader mappings:**
-- `<leader>db` (`Space d b`) → Toggle breakpoint
-- `<leader>dc` (`Space d c`) → Continue/start debugging
-- `<leader>do` (`Space d o`) → Step over
-- `<leader>di` (`Space d i`) → Step into
-- `<leader>du` (`Space d u`) → Step out
-- `<leader>dr` (`Space d r`) → Restart frame
-- `<leader>dl` (`Space d l`) → Run last debug session
-- `<leader>ds` (`Space d s`) → Stop debugger
-- `<leader>dR` (`Space d R`) → Toggle DAP REPL
-- `<leader>dpr` (`Space d p r`) → Run Python test method under cursor
+- `<leader>db` → Toggle breakpoint
+- `<leader>dc` → Continue / start debugging
+- `<leader>do` → Step over
+- `<leader>di` → Step into
+- `<leader>du` → Step out
+- `<leader>dr` → Restart frame
+- `<leader>dl` → Run last debug session
+- `<leader>ds` → Stop debugger
+- `<leader>dR` → Toggle DAP REPL
+- `<leader>dpr` → Run Python test method under cursor
 
 **Function keys (VS Code style):**
-- `F5` → Continue debugging
-- `F9` → Toggle breakpoint
-- `F10` → Step over
-- `F11` → Step into
-- `F12` → Step out
+- `F5` → Continue · `F9` → Toggle breakpoint · `F10` → Step over · `F11` → Step into · `F12` → Step out
 
-### Tmux
-- Default tmux keybindings enabled for seamless pane navigation
+### Notes (Telekasten)
+- `<leader>z` → panel · `<leader>zf` → find notes · `<leader>zg` → search notes
+- `<leader>zn` → new note · `<leader>zd` → daily note · `<leader>zt` → toggle todo
+- `<leader>zb` → backlinks · `<leader>zz` → follow link · `<leader>zc` → calendar · `<leader>zI` → insert image
+
+### Remote (SSHFS)
+- `<leader>rc` → connect · `<leader>rd` → disconnect · `<leader>re` → edit ssh config
+- `<leader>rf` → find files on remote · `<leader>rg` → live grep on remote
+
+### Misc
+- `<leader>mp` → toggle Markdown preview
+- `<leader>se` → insert symbol / emoji
+- Tmux navigation: `Ctrl+h/j/k/l` move between Neovim splits and tmux panes
 
 ---
 
@@ -116,198 +166,109 @@ This is a Neovim configuration built on **NvChad v2.5** with extensive support f
 
 ```
 ~/.config/nvim/
-├── init.lua                      # Entry point, bootstrap lazy.nvim
-├── CLAUDE.md                     # Documentation for Claude Code AI
+├── init.lua                      # Entry point, bootstrap lazy.nvim, load theme cache
+├── CLAUDE.md                     # Guidance for Claude Code AI
 ├── CONFIG_SUMMARY.md             # This file
 ├── lua/
-│   ├── chadrc.lua               # NvChad theme config (onedark)
-│   ├── options.lua              # Custom vim options
-│   ├── mappings.lua             # Custom keybindings
+│   ├── chadrc.lua                # NvChad config (theme = rosepine-moon, hl_override)
+│   ├── options.lua               # Custom vim options (tabs, width 4)
+│   ├── mappings.lua              # Custom keybindings
+│   ├── themes/
+│   │   └── rosepine-moon.lua     # Custom Rose Pine Moon palette
+│   ├── utils/
+│   │   └── venv.lua              # Python interpreter resolver (uv .venv aware)
 │   ├── configs/
-│   │   ├── lazy.lua             # Lazy.nvim configuration
-│   │   ├── lspconfig.lua        # LSP server configurations
-│   │   ├── null-ls.lua          # Linting/formatting sources
-│   │   ├── conform.lua          # Format orchestration
-│   │   ├── dap.lua              # Debug adapter configurations
-│   │   ├── treesitter.lua       # Treesitter parsers and settings
-│   │   └── rainbow.lua          # Rainbow delimiters config
+│   │   ├── lazy.lua              # lazy.nvim config
+│   │   ├── lspconfig.lua         # LSP servers (vim.lsp.config API)
+│   │   ├── conform.lua           # Formatter orchestration
+│   │   ├── dap.lua               # Debug adapter configs
+│   │   ├── treesitter.lua        # Parsers + text objects
+│   │   └── rainbow.lua           # Rainbow delimiters
 │   └── plugins/
-│       └── init.lua             # Plugin declarations
-└── lazy-lock.json               # Plugin version lock (gitignored)
+│       └── init.lua              # Plugin declarations
+└── lazy-lock.json                # Plugin version lock (gitignored)
 ```
 
 ---
 
 ## Editor Settings
 
-- **Indentation**: Tabs (not spaces), width = 4
+- **Indentation**: real tab characters (`expandtab = false`), `tabstop`/`shiftwidth`/`softtabstop` = 4
 - **Leader Key**: Space
-- **Theme**: onedark (11 additional themes available)
-- **Python Version**: 3.13 (paths configured for site-packages)
-- **Virtual Environment**: Uses `$VIRTUAL_ENV` for Python tooling
+- **Theme**: `rosepine-moon` (with `hl_override` for a brighter Visual selection matching Ghostty, plus italic comments/emphasis)
 
 ---
 
-## Python Development Workflow
+## Python Development Workflow (uv-style)
 
-### Prerequisites
-- Set `$VIRTUAL_ENV` environment variable before opening Neovim
-- Virtual environment should contain your project dependencies
+Python tooling resolves the interpreter the same way everywhere (pyright, DAP) via `lua/utils/venv.lua`:
+
+1. `$VIRTUAL_ENV/bin/python` (if an env is active)
+2. `<project root>/.venv/bin/python` (the **uv** convention)
+3. system `python3`
+
+No global virtualenvwrapper / hardcoded version paths. Just `uv venv` in a project (creating `.venv/`) and open Neovim there.
 
 ### Features
-- **Type Checking**: Pyright + mypy
-- **Linting**: ruff
-- **Formatting**: black
-- **Debugging**: debugpy with full DAP integration
-  - Supports `.vscode/launch.json` files
-  - Default FastAPI config for `backend/main.py`
-  - Virtual environment auto-detection
-
-### Python Path Configuration
-- Interpreter: `$VIRTUAL_ENV/bin/python3`
-- Site packages: `$VIRTUAL_ENV/lib/python3.13/site-packages`
+- **Type checking**: pyright (lint-style diagnostics deferred to ruff)
+- **Linting**: ruff (LSP diagnostics)
+- **Formatting**: ruff (`ruff_organize_imports` + `ruff_format`) via conform
+- **Debugging**: debugpy + DAP UI; reads `.vscode/launch.json`; FastAPI fallback config
 
 ---
 
 ## JavaScript/TypeScript Development Workflow
 
-### Features
-- **Language Server**: typescript-tools with separate diagnostic server
-- **Linting**: ESLint with auto-fix on save
-- **Formatting**: Prettier
-- **Auto-close Tags**: Automatic closing and renaming of JSX/HTML tags
-- **Package Management**: npm package version viewer/updater
-
-### Supported File Types
-- JavaScript (`.js`)
-- TypeScript (`.ts`)
-- React (`.jsx`, `.tsx`)
-
----
-
-## Tailwind CSS
-
-- IntelliSense for all HTML, CSS, JS, JSX, TS, and TSX files
-- Auto-completion of Tailwind classes
-- Color previews
-
----
-
-## Debugging Configuration
-
-### Python Debugging
-- Uses `debugpy` adapter
-- Auto-opens DAP UI when debugging starts
-- Supports test method debugging
-- FastAPI launch config included
-- Reads `.vscode/launch.json` if present
-
-### VS Code Style Keybindings
-Function keys F5-F12 work like VS Code for familiar debugging workflow.
+- **Language server**: typescript-tools.nvim (separate diagnostic server, diagnostics on `InsertLeave`)
+- **Linting**: ESLint (format-on-save via LSP)
+- **Formatting**: Prettier (via conform)
+- **Tailwind**: IntelliSense across html/css/js/jsx/ts/tsx
+- **Tags**: auto-close/rename JSX & HTML
+- **npm**: package-info shows/updates versions in `package.json`
+- File types: `.js`, `.ts`, `.jsx` (mapped to `javascriptreact`), `.tsx`
 
 ---
 
 ## How to Use
 
-### First Time Setup
-1. Open Neovim - plugins will auto-install
-2. Wait for Mason to install language servers and tools
-3. Run `:checkhealth` to verify everything is working
+### First-Time Setup
+1. Open Neovim — lazy.nvim installs plugins
+2. Wait for Mason to install language servers / tools
+3. Run `:checkhealth` to verify
 
 ### Daily Usage
-1. Activate Python virtual environment: `source venv/bin/activate`
-2. Open Neovim in project directory: `nvim .`
-3. LSP will automatically attach to files
-4. Use `<leader>gg` for git operations
-5. Use `<leader>cc` for AI assistance
-6. Use F5-F12 for debugging
+1. In a Python project, ensure a `.venv/` exists (`uv venv`) or activate an env
+2. `nvim .` in the project — LSP attaches automatically
+3. `<leader>gg` for Git, `<leader>cc` for Claude, `F5`–`F12` for debugging
 
 ### Managing Plugins
-- `:Lazy` - Open plugin manager UI
-- `:Lazy sync` - Update all plugins
-- `:Lazy clean` - Remove unused plugins
+- `:Lazy` — plugin manager UI · `:Lazy sync` — update · `:Lazy clean` — remove unused
 
 ### Managing LSP Tools
-- `:Mason` - Open Mason UI
-- Navigate with `j/k`, press `i` to install, `X` to uninstall
-- All configured tools auto-install on startup
-
----
-
-## Changes Made Today (2025-11-19)
-
-### 1. Fixed Neovim 0.11+ Compatibility Issues
-- **Migrated LSP configuration** from deprecated `lspconfig[server].setup()` to modern `vim.lsp.config` API
-- **Replaced null-ls** with maintained fork `none-ls.nvim`
-- **Added mason-null-ls bridge** to automatically register Mason tools with none-ls
-- **Added mason-tool-installer** for automatic tool installation on startup
-- Eliminated all deprecation warnings
-
-### 2. Created Documentation
-- Created `CLAUDE.md` with architecture overview and development guidance
-- Created `CONFIG_SUMMARY.md` (this file) for quick reference
-
-### 3. Merged dev Branch into main
-Successfully merged dev branch with the following additions:
-
-#### JavaScript/TypeScript Support
-- Added `typescript-tools.nvim` for TypeScript language server
-- Added `eslint_d` for fast linting
-- Added `prettier` for code formatting
-- Added `nvim-ts-autotag` for auto-closing JSX/HTML tags
-- Added JSX filetype detection in init.lua
-
-#### Enhanced Debugging
-- Added VS Code-style function key mappings (F5, F9-F12)
-- Added additional leader mappings (`<leader>do`, `<leader>di`, etc.)
-- Added support for `.vscode/launch.json` files
-- Improved virtual environment detection
-- Updated FastAPI config for `backend/main.py` structure
-
-#### UI/Visual Enhancements
-- Added `rainbow-delimiters.nvim` for colored brackets/parentheses
-- Added full Treesitter configuration with text objects
-- Enabled `vaf`/`vif` (function) and `vac`/`vic` (class) text objects
-
-#### Additional Tools
-- Added `claude-code.nvim` for AI assistance (`<leader>cc`)
-- Added `tmux.nvim` for seamless tmux navigation
-- Added `package-info.nvim` for npm package management
-- Added Tailwind CSS LSP support
-
-#### Updated Configurations
-- Updated Python paths from 3.10 to 3.13
-- Configured ruff to disable diagnostics (formatting only)
-- Added ESLint auto-format on save
-- Maintained all Neovim 0.11+ compatibility fixes
-
-### 4. Resolved Merge Conflicts
-- Successfully combined compatibility fixes with dev branch features
-- Ensured all new features use modern Neovim 0.11+ APIs
-- Updated tool installation lists to include JS/TS tools
-- Maintained mason-null-ls bridge for all formatters/linters
-
-### 5. Commit History
-```
-4d642d1 Merge dev branch into main
-30e5b15 Fix Neovim 0.11+ compatibility issues
-```
+- `:Mason` — UI (`i` install, `X` uninstall); configured tools auto-install on startup
 
 ---
 
 ## Quick Reference Card
 
-| Action | Command/Keybinding |
-|--------|-------------------|
-| Open command mode | `;` |
+| Action | Command / Keybinding |
+|--------|----------------------|
+| Command mode | `;` |
 | Exit insert mode | `jk` |
+| Exit terminal → prev window | `Ctrl+o` (in terminal) |
+| Move selection/line | `Alt+h/j/k/l` |
+| Surround selection | `sa{char}` (e.g. `sa"`) |
+| Delete / replace surround | `sd"` / `sr"'` |
 | Open LazyGit | `Space g g` |
-| Toggle Claude Code | `Space c c` |
+| Next / prev git hunk | `]h` / `[h` |
+| Stage / reset hunk | `Space h s` / `Space h r` |
+| Claude pane picker | `Space c c` |
+| Focus Claude | `Space c f` |
 | Toggle breakpoint | `Space d b` or `F9` |
-| Start/continue debug | `Space d c` or `F5` |
-| Step over | `Space d o` or `F10` |
-| Step into | `Space d i` or `F11` |
-| Step out | `Space d u` or `F12` |
+| Start / continue debug | `Space d c` or `F5` |
+| Daily note | `Space z d` |
+| Connect remote (SSHFS) | `Space r c` |
+| Markdown preview | `Space m p` |
 | Open plugin manager | `:Lazy` |
 | Open Mason | `:Mason` |
 | Check health | `:checkhealth` |
@@ -317,21 +278,20 @@ Successfully merged dev branch with the following additions:
 ## Troubleshooting
 
 ### LSP Not Working
-- Check virtual environment is activated: `echo $VIRTUAL_ENV`
-- Run `:LspInfo` to see attached servers
-- Run `:checkhealth lsp` for diagnostics
+- Confirm the interpreter resolves: `:lua print(require("utils.venv").python())`
+- Run `:LspInfo` to see attached servers; `:checkhealth lsp` for diagnostics
 
 ### Tools Not Found
-- Open `:Mason` and verify tools are installed
-- Check `:checkhealth mason` for issues
-- Restart Neovim to trigger auto-installation
+- Open `:Mason` and verify installs; `:checkhealth mason`; restart to trigger auto-install
 
 ### Debugging Not Working
-- Verify debugpy is installed: `:Mason`
-- Check Python path is correct: `:lua print(vim.fn.expand("$VIRTUAL_ENV"))`
-- Run `:checkhealth dap` for diagnostics
+- Verify debugpy in `:Mason`
+- Check the resolved Python path (see LSP tip above); `:checkhealth dap`
+
+### Theme Looks Wrong After Palette Edits
+- Recompile the base46 cache: `nvim --headless -c 'lua require("base46").compile()' -c 'qa'`
 
 ---
 
-*Last Updated: 2025-11-19*
+*Last Updated: 2026-06-03*
 *Configuration Version: NvChad v2.5 + Custom Enhancements*

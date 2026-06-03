@@ -560,6 +560,15 @@ return {
 				highlight = "sh", -- Highlight surrounding
 				update_n_lines = "sn", -- Update `n_lines` search range
 			},
+			-- `B` = markdown bold (`**…**`) in one shot, so it isn't two `sd*`s.
+			--   saB → make bold   sdB → remove bold   srB* → bold→italic
+			-- The `().-()` captures mark the inner text; mini infers `**` as the delimiters.
+			custom_surroundings = {
+				B = {
+					input = { "%*%*().-()%*%*" },
+					output = { left = "**", right = "**" },
+				},
+			},
 		},
 	},
 
