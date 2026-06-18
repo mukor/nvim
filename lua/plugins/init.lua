@@ -583,7 +583,9 @@ return {
 		config = function()
 			require("brain-rag").setup {
 				tags = {
-					brain_rag_cmd = "/home/spencer/dev/brain-rag/.venv/bin/brain-rag",
+					-- Resolve from PATH (installed via `uv tool install` / `brain-rag setup`)
+					-- so this config is portable across machines.
+					brain_rag_cmd = "brain-rag",
 				},
 			}
 		end,
