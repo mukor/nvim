@@ -329,11 +329,11 @@ return {
 		end,
 	},
 
-	-- Treesitter — pinned to the classic `master` branch architecture.
-	-- The new `main` branch requires Neovim 0.12+ and uses a different API.
+	-- Treesitter — `main` branch architecture (Neovim 0.12+). The plugin is a
+	-- parser installer + queries; highlighting/indent come from Neovim core.
 	{
 		"nvim-treesitter/nvim-treesitter",
-		branch = "master",
+		branch = "main",
 		build = ":TSUpdate",
 		config = function()
 			require "configs.treesitter"
@@ -342,9 +342,12 @@ return {
 
 	{
 		"nvim-treesitter/nvim-treesitter-textobjects",
-		branch = "master",
+		branch = "main",
 		dependencies = { "nvim-treesitter/nvim-treesitter" },
 		event = "VeryLazy",
+		config = function()
+			require "configs.treesitter-textobjects"
+		end,
 	},
 
 	-- Telekasten (Zettelkasten/note-taking)
