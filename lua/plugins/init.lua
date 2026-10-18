@@ -165,6 +165,18 @@ return {
 	{
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
 		dependencies = { "williamboman/mason.nvim" },
+		-- Its run_on_start hooks VimEnter, which has already fired by VeryLazy,
+		-- so kick off the install check from config instead.
+		event = "VeryLazy",
+		cmd = { "MasonToolsInstall", "MasonToolsInstallSync", "MasonToolsUpdate", "MasonToolsUpdateSync", "MasonToolsClean" },
+		config = function(_, opts)
+			local mti = require "mason-tool-installer"
+			mti.setup(opts)
+			-- The smoke test would quit mid-install and leave broken packages
+			if not vim.g.smoke_test then
+				mti.run_on_start()
+			end
+		end,
 		opts = {
 			ensure_installed = {
 				"lua-language-server",
@@ -173,6 +185,10 @@ return {
 				"ruff",
 				"debugpy",
 				"prettier",
+				"html-lsp",
+				"css-lsp",
+				"eslint-lsp",
+				"tailwindcss-language-server",
 				-- Kept for the tsserver binary it bundles; typescript-tools.nvim
 				-- uses tsserver directly. Safe to drop if `typescript` lives in
 				-- project node_modules or is globally installed via npm.
