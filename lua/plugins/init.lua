@@ -598,7 +598,8 @@ return {
 	{
 		dir = "~/dev/brain-rag.nvim",
 		dependencies = { "hrsh7th/nvim-cmp", "L3MON4D3/LuaSnip" },
-		ft = "markdown",
+		-- Telekasten sets ft=telekasten on notes it opens; load for those too
+		ft = { "markdown", "telekasten" },
 		config = function()
 			require("brain-rag").setup {
 				tags = {
