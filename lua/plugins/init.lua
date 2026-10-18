@@ -413,7 +413,10 @@ return {
 		"iamcco/markdown-preview.nvim",
 		cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
 		ft = "markdown",
-		build = "cd app && npm install",
+		-- Prebuilt bundle; `npm install` rewrote app/yarn.lock and blocked lazy updates
+		build = function()
+			vim.fn["mkdp#util#install"]()
+		end,
 		keys = {
 			{ "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", desc = "Toggle markdown preview" },
 		},
@@ -584,8 +587,10 @@ return {
 			require("brain-rag").setup {
 				tags = {
 					-- Resolve from PATH (installed via `uv tool install` / `brain-rag setup`)
-					-- so this config is portable across machines.
-					brain_rag_cmd = "brain-rag",
+					-- so this config is portable across machines. Fall back to uv's default
+					-- tool bin dir when nvim's PATH lacks it (e.g. launched from a GUI).
+					brain_rag_cmd = vim.fn.executable "brain-rag" == 1 and "brain-rag"
+						or vim.fn.expand "~/.local/bin/brain-rag",
 				},
 			}
 		end,
