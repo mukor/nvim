@@ -1,5 +1,7 @@
 # Notes Ingestion Strategy for Local LLM
 
+> **Status:** this is the original design doc. The system has since been built as [brain-rag](https://github.com/mukor/brain-rag) (CLI, installed via its `install.sh`) and `brain-rag.nvim` (loaded from `~/dev/brain-rag.nvim`). See brain-rag's `USAGE.md` for current behavior; the code below may differ from the real implementation.
+
 This document outlines a complete strategy for authoring, storing, and ingesting Telekasten notes into a local LLM-powered RAG (Retrieval-Augmented Generation) system.
 
 ## Table of Contents

@@ -10,7 +10,7 @@ This is a Neovim configuration built on **NvChad v2.5**, customized for:
 - AI assistance via **Claude Code** (claudecode.nvim)
 - Zettelkasten note-taking (Telekasten) and remote editing (SSHFS)
 
-**Neovim Version**: 0.11.5
+**Neovim Version**: 0.12+ (tested on 0.12.3)
 **Plugin Manager**: lazy.nvim
 **Leader Key**: `Space`
 **Theme**: `rosepine-moon` (custom, canonical Rose Pine Moon palette)
@@ -29,7 +29,7 @@ This is a Neovim configuration built on **NvChad v2.5**, customized for:
 - **mason-tool-installer.nvim** — auto-installs the configured tool list on startup
 - **nvim-lspconfig** — LSP server configs (uses the modern `vim.lsp.config` / `vim.lsp.enable` API)
 
-Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugpy`, `prettier`, `typescript-language-server`.
+Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugpy`, `prettier`, `html-lsp`, `css-lsp`, `eslint-lsp`, `tailwindcss-language-server`, `typescript-language-server`.
 
 ### LSP Servers Configured
 - **pyright** — Python type checking + IntelliSense (per-workspace venv resolution; lint-style diagnostics deferred to ruff; UTF-8 position encoding to agree with ruff)
@@ -38,6 +38,7 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 - **eslint** — JS/TS linting with format-on-save
 - **tailwindcss** — Tailwind class IntelliSense (html/css/js/jsx/ts/tsx)
 - **typescript-tools.nvim** — TS/JS language server (used instead of the lspconfig tsserver)
+- **lua_ls** — Lua (enabled by NvChad's LSP defaults)
 
 > Note: `none-ls`/`null-ls`, `mypy`, and `black` were removed. Python is now **pyright + ruff** only, with formatting via conform.
 
@@ -64,7 +65,8 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 - **rainbow-delimiters.nvim** — color-coded brackets
 
 ### Syntax & Parsing
-- **nvim-treesitter** (pinned to `master` branch) — parsers: lua, vim, vimdoc, html, css, javascript, typescript, tsx, json, python
+- **nvim-treesitter** (`main` branch) — installs parsers: lua, vim, vimdoc, html, css, javascript, typescript, tsx, json, python, markdown, markdown_inline. Highlighting, folds, and indent come from Neovim core, started per buffer by a `FileType` autocmd
+- **nvim-treesitter-textobjects** (`main` branch) — configured with its own `setup()`; keymaps call `select_textobject` directly
 
 ### Git Integration
 - **lazygit.nvim** — terminal Git UI
@@ -76,12 +78,12 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 ### Notes / Remote / Misc
 - **telekasten.nvim** — Zettelkasten notes with calendar (notes in `~/notes`)
 - **telescope-media-files.nvim** — image preview for Telekasten
-- **markdown-preview.nvim** — live Markdown preview in browser
+- **markdown-preview.nvim** — live Markdown preview in browser (built with the prebuilt bundle via `mkdp#util#install()`)
 - **telescope-symbols.nvim** — emoji/symbol picker
 - **remote-sshfs.nvim** — edit remote files over SSHFS
 - **tmux.nvim** — seamless Neovim ⇆ tmux pane navigation (`Ctrl+hjkl`)
 - **package-info.nvim** — view/update npm versions in `package.json`
-- **brain-rag.nvim** (local) — semantic notes integration
+- **brain-rag.nvim** (local, `~/dev/brain-rag.nvim`) — markdown tag completion (nvim-cmp) from the `brain-rag` CLI, note-type snippets (LuaSnip), tag sync, and a meeting-note helper. Finds the CLI on PATH, falling back to `~/.local/bin/brain-rag`
 
 ---
 
@@ -155,6 +157,9 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 - `<leader>rc` → connect · `<leader>rd` → disconnect · `<leader>re` → edit ssh config
 - `<leader>rf` → find files on remote · `<leader>rg` → live grep on remote
 
+### Notes (brain-rag)
+- `<leader>zm` → create a meeting note from the current line (daily log)
+
 ### Misc
 - `<leader>mp` → toggle Markdown preview
 - `<leader>se` → insert symbol / emoji
@@ -169,6 +174,8 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 ├── init.lua                      # Entry point, bootstrap lazy.nvim, load theme cache
 ├── CLAUDE.md                     # Guidance for Claude Code AI
 ├── CONFIG_SUMMARY.md             # This file
+├── README.md                     # Overview and install
+├── NOTES_INGEST.md               # Original notes-RAG design doc (now brain-rag)
 ├── lua/
 │   ├── chadrc.lua                # NvChad config (theme = rosepine-moon, hl_override)
 │   ├── options.lua               # Custom vim options (tabs, width 4)
@@ -182,10 +189,14 @@ Mason auto-installs: `lua-language-server`, `stylua`, `pyright`, `ruff`, `debugp
 │   │   ├── lspconfig.lua         # LSP servers (vim.lsp.config API)
 │   │   ├── conform.lua           # Formatter orchestration
 │   │   ├── dap.lua               # Debug adapter configs
-│   │   ├── treesitter.lua        # Parsers + text objects
+│   │   ├── treesitter.lua        # Parsers + treesitter start (main branch)
+│   │   ├── treesitter-textobjects.lua # af/if/ac/ic text objects
 │   │   └── rainbow.lua           # Rainbow delimiters
 │   └── plugins/
-│       └── init.lua              # Plugin declarations
+│       └── init.lua              # Plugin declarations + Claude pane picker
+├── test/
+│   ├── run.sh                    # Headless smoke test runner
+│   └── smoke.lua                 # Smoke test checks
 └── lazy-lock.json                # Plugin version lock (gitignored)
 ```
 
@@ -234,7 +245,7 @@ No global virtualenvwrapper / hardcoded version paths. Just `uv venv` in a proje
 ### First-Time Setup
 1. Open Neovim — lazy.nvim installs plugins
 2. Wait for Mason to install language servers / tools
-3. Run `:checkhealth` to verify
+3. Run `test/run.sh` (headless smoke test) or `:checkhealth` to verify
 
 ### Daily Usage
 1. In a Python project, ensure a `.venv/` exists (`uv venv`) or activate an env
@@ -243,6 +254,7 @@ No global virtualenvwrapper / hardcoded version paths. Just `uv venv` in a proje
 
 ### Managing Plugins
 - `:Lazy` — plugin manager UI · `:Lazy sync` — update · `:Lazy clean` — remove unused
+- After syncing, run `test/run.sh` to catch broken plugins or builds
 
 ### Managing LSP Tools
 - `:Mason` — UI (`i` install, `X` uninstall); configured tools auto-install on startup
@@ -279,7 +291,7 @@ No global virtualenvwrapper / hardcoded version paths. Just `uv venv` in a proje
 
 ### LSP Not Working
 - Confirm the interpreter resolves: `:lua print(require("utils.venv").python())`
-- Run `:LspInfo` to see attached servers; `:checkhealth lsp` for diagnostics
+- Run `:checkhealth vim.lsp` to see enabled/attached servers
 
 ### Tools Not Found
 - Open `:Mason` and verify installs; `:checkhealth mason`; restart to trigger auto-install
@@ -288,10 +300,16 @@ No global virtualenvwrapper / hardcoded version paths. Just `uv venv` in a proje
 - Verify debugpy in `:Mason`
 - Check the resolved Python path (see LSP tip above); `:checkhealth dap`
 
+### `:Lazy sync` Reports Local Changes in a Plugin
+- A build step or tool modified the plugin's checkout. In `:Lazy`, press `x` on it, then `I` to reinstall
+
+### Anything Else
+- Run `test/run.sh` — it reports missing plugins, failed builds, load errors, treesitter problems, and missing tools
+
 ### Theme Looks Wrong After Palette Edits
 - Recompile the base46 cache: `nvim --headless -c 'lua require("base46").compile()' -c 'qa'`
 
 ---
 
-*Last Updated: 2026-06-03*
+*Last Updated: 2026-10-18*
 *Configuration Version: NvChad v2.5 + Custom Enhancements*

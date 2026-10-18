@@ -4,219 +4,118 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a Neovim configuration built on top of NvChad v2.5, customized for Python development with LSP, debugging, formatting, and linting capabilities. The configuration uses lazy.nvim for plugin management.
+Personal Neovim configuration built on NvChad v2.5 and lazy.nvim, targeting **Neovim 0.12+**. Focus areas: Python (pyright + ruff, debugpy), JS/TS/React + Tailwind, Claude Code integration, Telekasten notes (with the local brain-rag plugin), and remote editing over SSHFS. Used on both macOS and Linux, so keep paths portable (no hardcoded `/home/...` or `/Users/...`).
 
-## Prerequisites
+User-facing docs: `README.md` (overview/install) and `CONFIG_SUMMARY.md` (full plugin + keymap reference). Keep all three in sync when changing plugins or keymaps.
 
-- Lazygit (for git integration)
-- Node.js
-- Go
-- Python with virtual environment support
-- sshfs (for remote file editing via SSH)
+## Testing
+
+Run the headless smoke test after any config change or `:Lazy sync`:
+
+```bash
+test/run.sh        # optional arg: timeout in seconds (default 120)
+```
+
+`test/smoke.lua` is loaded with `--cmd` (before `init.lua`) so it can hook `vim.notify`. It then:
+- checks every plugin is installed with no failed lazy tasks (e.g. builds)
+- force-loads every lazy plugin
+- opens sample markdown/python/lua/json/html/css files and parses treesitter including injections (fenced code blocks)
+- warns about Mason `ensure_installed` packages that aren't installed, and missing external tools
+- fails on any error in `:messages` or `vim.notify`
+
+Exits non-zero on failure. It does not yet verify that LSP servers attach. It sets `vim.g.smoke_test = true` so config can skip side effects a short-lived nvim would break (currently: mason-tool-installer's startup install). Note that `VeryLazy` fires on `UIEnter`, which never happens headless.
+
+Quick syntax check of a single file: `nvim --headless -c 'luafile <file>' -c 'qa!'`.
 
 ## Architecture
 
-### Configuration Entry Point
+### Entry point
 
-- `init.lua`: Bootstrap file that sets up lazy.nvim, loads NvChad base, configures theme, and applies custom options
-  - Sets leader key to space
-  - Configures tabs (4 spaces, actual tab characters instead of spaces)
-  - Loads plugins from `lua/plugins/init.lua`
+`init.lua`: sets `vim.g.base46_cache` and leader (space), bootstraps lazy.nvim, imports `nvchad.plugins` (NvChad v2.5) plus `lua/plugins/`, loads the base46 theme cache, then `options`, `nvchad.autocmds`, and (scheduled) `mappings`. Also maps `.jsx` → `javascriptreact`.
 
-### Core Configuration Files
+### Core files
 
-- `lua/chadrc.lua`: NvChad theme configuration (currently using "onedark" theme)
-- `lua/options.lua`: Custom vim options (extends NvChad defaults)
-- `lua/mappings.lua`: Custom keybindings
-  - `;` mapped to `:` for command mode
-  - `jk` mapped to `<ESC>` in insert mode
-  - `<leader>gg` opens LazyGit
-  - DAP debugging keybindings: `<leader>db` (toggle breakpoint), `<leader>dc` (continue), `<leader>dpr` (run Python test method)
-  - Telekasten keybindings: `<leader>z` (panel), `<leader>zf` (find), `<leader>zg` (search), `<leader>zn` (new), `<leader>zd` (daily), `<leader>zt` (toggle todo), `<leader>zb` (backlinks), `<leader>zz` (follow link), `<leader>zc` (calendar), `<leader>zI` (insert image)
-  - Remote SSHFS keybindings: `<leader>rc` (connect), `<leader>rd` (disconnect), `<leader>re` (edit config), `<leader>rf` (find files), `<leader>rg` (live grep)
+- `lua/chadrc.lua`: NvChad config. Theme `rosepine-moon` plus `hl_override` (Visual matches Ghostty's selection color, italic comments/emphasis).
+- `lua/themes/rosepine-moon.lua`: custom base46 theme (canonical Rose Pine Moon palette). After palette edits, recompile: `nvim --headless -c 'lua require("base46").compile()' -c 'qa'`.
+- `lua/options.lua`: extends `nvchad.options`. Real tab characters (`expandtab = false`), width 4.
+- `lua/mappings.lua`: extends `nvchad.mappings`. Global maps plus `M.load_mappings(mode)`, which registers the `dap` / `dap_python` keymap tables when those plugins load.
+- `lua/utils/venv.lua`: `python(root)` resolves the interpreter as `$VIRTUAL_ENV/bin/python` → `<root>/.venv/bin/python` (uv) → system `python3`. Used by pyright and DAP; don't hardcode Python paths elsewhere.
+- `lua/plugins/init.lua`: all plugin specs. Also contains the Claude pane layout switcher and picker (`claude_open_in`, `claude_picker`) used by `<leader>cc`.
 
-### Plugin Configuration
+### Plugin configs (`lua/configs/`)
 
-Located in `lua/configs/`:
+- `lazy.lua`: lazy.nvim options. `defaults.lazy = true`, so every plugin needs a trigger (`ft`, `cmd`, `keys`, `event`) or `lazy = false`.
+- `lspconfig.lua`: uses the native `vim.lsp.config` / `vim.lsp.enable` API (not `require("lspconfig").x.setup`). Enables html, cssls, pyright, ruff, eslint, tailwindcss; NvChad's defaults add lua_ls.
+  - pyright: interpreter from `utils.venv` at init time, UTF-8 position encoding (to match ruff), unused-* diagnostics disabled (ruff reports them).
+  - ruff: hover disabled (pyright handles hover).
+  - eslint: formats on save via `BufWritePre`.
+  - tailwindcss: html/css/js/jsx/ts/tsx.
+- `conform.lua`: formatters by filetype. stylua (Lua), `ruff_organize_imports` + `ruff_format` (Python), prettier (JS/TS/JSON/HTML/CSS/Markdown/YAML). Format-on-save is off (commented out).
+- `dap.lua`: Python adapter (`python3 -m debugpy.adapter`), FastAPI fallback config for `${workspaceFolder}/backend/main.py` on 127.0.0.1:8000. `.vscode/launch.json` is auto-loaded by nvim-dap.
+- `treesitter.lua`: nvim-treesitter **main** branch. There is no `setup{}` or `nvim-treesitter.configs`; it calls `install(langs)` and a `FileType` autocmd runs `vim.treesitter.start()` and sets fold/indent exprs. Add parsers to `langs`.
+- `treesitter-textobjects.lua`: textobjects **main** branch. Configured with its own `setup()`; keymaps (`af`/`if`/`ac`/`ic`) call `select_textobject` explicitly.
+- `rainbow.lua`: rainbow-delimiters strategy/query settings.
 
-1. **LSP Configuration** (`lspconfig.lua`):
-   - Configured servers: html, cssls, pyright, ruff
-   - Pyright configured to use `$VIRTUAL_ENV/bin/python` for Python path
-   - Python analysis uses `$VIRTUAL_ENV/lib/python3.10/site-packages` as extraPaths
-   - Black configured as formatter with tab indentation
+null-ls/none-ls, mypy, and black were removed; Python is pyright + ruff only, with formatting via conform.
 
-2. **Null-ls Configuration** (`null-ls.lua`):
-   - mypy diagnostics (uses virtual environment Python)
-   - ruff diagnostics
-   - black formatting
+### Plugins of note (`lua/plugins/init.lua`)
 
-3. **Conform Configuration** (`conform.lua`):
-   - stylua for Lua formatting
-   - format_on_save is commented out by default
+- **mason-tool-installer**: loads on `VeryLazy` and calls `run_on_start()` from its config (its own `VimEnter` hook has already fired by then). Auto-installs lua-language-server, stylua, pyright, ruff, debugpy, prettier, html-lsp, css-lsp, eslint-lsp, tailwindcss-language-server, typescript-language-server (Mason package names, not lspconfig server names).
+- **typescript-tools.nvim**: TS/JS language server (instead of lspconfig's ts_ls).
+- **nvim-dap / dap-ui / dap-python**: dap-ui opens/closes with sessions; dap-python uses Mason's debugpy venv.
+- **claudecode.nvim** (coder): WebSocket/MCP protocol like the VS Code extension; uses the snacks.nvim terminal provider so the pane can be horizontal, vertical, or floating.
+- **gitsigns**: shipped by NvChad; this spec only adds keymaps.
+- **mini.move / mini.surround**: Alt+hjkl moves; `sa`/`sd`/`sr` surround with a custom `B` (markdown bold `**…**`).
+- **telekasten** (+ calendar-vim, telescope-media-files with viu), **markdown-preview** (built with `mkdp#util#install()`, not `npm install`, which dirties the plugin's git tree and blocks lazy updates), **telescope-symbols**, **remote-sshfs**, **tmux.nvim**, **package-info**, **nvim-ts-autotag**, **rainbow-delimiters**.
+- **brain-rag.nvim**: local plugin at `~/dev/brain-rag.nvim` (`dir =` spec, markdown only). Tag completion via nvim-cmp, LuaSnip note-type snippets, tag sync, `<leader>zm` (meeting note from line). Calls the `brain-rag` CLI from PATH, falling back to `~/.local/bin/brain-rag`. The CLI is installed by `~/dev/brain-rag/install.sh` (`uv tool install`).
 
-4. **DAP Configuration** (`dap.lua`):
-   - Python debugger setup with debugpy
-   - FastAPI launch configuration targeting `main.py` with host 172.27.139.9:8000
-   - Uses system Python3 with debugpy module
+## Keybindings
 
-### Plugin Stack
+Defined in `lua/mappings.lua` (global, DAP) and in plugin specs' `keys` (everything else). Full list in `CONFIG_SUMMARY.md`. Groups:
+- General: `;` → `:`, `jk` → Esc, `<C-o>` in terminal mode exits and returns to the previous window
+- `<leader>gg` LazyGit · `]h`/`[h` and `<leader>h*` gitsigns hunks
+- `<leader>c*` Claude Code (`cc` pane picker, `cf` focus, `cr` resume, `cC` continue, `cb` add buffer, `cs` send selection, `ca`/`cd` accept/deny diff)
+- `<leader>d*` and F5/F9–F12 DAP; `<leader>dpr` run Python test method
+- `<leader>z*` Telekasten; `<leader>zm` brain-rag meeting note
+- `<leader>r*` remote SSHFS · `<leader>mp` markdown preview · `<leader>se` symbols
+- Alt+hjkl mini.move · `sa`/`sd`/`sr`/`sf`/`sF`/`sh`/`sn` mini.surround · `af`/`if`/`ac`/`ic` textobjects
 
-Key plugins from `lua/plugins/init.lua`:
+## Conventions
 
-- **Mason**: Auto-installs pyright, mypy, ruff, black, debugpy
-- **nvim-lspconfig**: LSP integration
-- **null-ls**: Additional diagnostics and formatting
-- **conform.nvim**: Formatting orchestration
-- **nvim-dap + nvim-dap-ui**: Debugging interface
-- **nvim-dap-python**: Python-specific DAP configuration (debugpy at `~/.local/share/nvim/mason/packages/debugpy/venv/bin/python`)
-- **lazygit.nvim**: Git interface integration
-- **telekasten.nvim**: Zettelkasten-style note-taking with calendar integration
-- **remote-sshfs.nvim**: Edit files on remote servers via SSHFS
-
-## Python Development Workflow
-
-### Virtual Environment Handling
-
-The configuration expects a `$VIRTUAL_ENV` environment variable to be set:
-- Pyright uses `$VIRTUAL_ENV/bin/python` as the Python interpreter
-- Pyright analysis includes `$VIRTUAL_ENV/lib/python3.10/site-packages`
-- mypy uses the virtual environment Python executable
-
-Note: The site-packages path is hardcoded to Python 3.10. Adjust in `lua/configs/lspconfig.lua` and `lua/configs/null-ls.lua` if using a different Python version.
-
-### LSP Servers
-
-- **pyright**: Type checking and IntelliSense
-- **ruff**: Fast Python linter
-- **html/cssls**: Web development support
-
-### Formatting and Linting
-
-- Primary formatter: black (via null-ls)
-- Linters: mypy, ruff (via null-ls)
-- Format-on-save is disabled by default
-
-### Debugging
-
-Python debugging uses DAP with debugpy:
-- `<leader>db`: Toggle breakpoint
-- `<leader>dc`: Continue/start debugging
-- `<leader>dpr`: Run test method under cursor
-- DAP UI automatically opens/closes with debug sessions
-- Default launch config targets FastAPI apps at `main.py`
-
-## Note-Taking with Telekasten
-
-Telekasten provides Zettelkasten-style note-taking with wiki-links, tags, and calendar integration.
-
-### Notes Directory
-
-Notes are stored in `~/notes`. Create this directory if it doesn't exist:
-```bash
-mkdir -p ~/notes
-```
-
-### Keybindings
-
-- `<leader>z`: Open Telekasten panel (shows all available commands)
-- `<leader>zf`: Find notes (search by filename)
-- `<leader>zg`: Search notes (grep content)
-- `<leader>zn`: Create new note
-- `<leader>zd`: Go to today's daily note
-
-### Calendar Integration
-
-Telekasten includes calendar-vim for visual date navigation:
-- `:Telekasten show_calendar`: Sidebar calendar (previous/current/next month)
-- `:CalendarT`: Full-screen calendar view
-
-In the calendar:
-- Days with notes display a `+` symbol and distinct highlighting
-- Press `Enter` on a date to open or create that day's note
-
-### Features
-
-- **Wiki-links**: Use `[[note-name]]` syntax to link between notes
-- **Tags**: Add `#tag` to categorize notes
-- **Daily notes**: Journal entries organized by date
-- **Backlinks**: Find all notes that link to the current note
-
-## Modifying Configuration
-
-### Adding New LSP Servers
-
-Add to the `servers` table in `lua/configs/lspconfig.lua`:
-```lua
-local servers = { "html", "cssls", "pyright", "ruff", "new_server" }
-```
-
-Ensure Mason installs it in `lua/plugins/init.lua`.
-
-### Adding Custom Keybindings
-
-Add to `lua/mappings.lua` using the `map` function or extend the `keymaps` table in `M.load_mappings`.
-
-### Changing Python Version Paths
-
-Update hardcoded `python3.10` paths in:
-- `lua/configs/lspconfig.lua` (line 61)
-- Comment indicates to adjust as needed
-
-### Theme Changes
-
-Modify `M.base46.theme` in `lua/chadrc.lua`.
-
-## Remote File Editing with SSHFS
-
-remote-sshfs.nvim allows editing files on remote servers via SSH mount.
-
-### Prerequisites
-
-Install sshfs on your local machine:
-```bash
-sudo apt install sshfs
-```
-
-### SSH Config Setup
-
-Add remote hosts to `~/.ssh/config`:
-```
-Host myserver
-    HostName 192.168.1.100
-    User root
-```
-
-### Keybindings
-
-- `<leader>rc`: Connect to remote host (picks from `~/.ssh/config`)
-- `<leader>rd`: Disconnect from remote
-- `<leader>re`: Edit SSH config
-- `<leader>rf`: Find files on remote (Telescope)
-- `<leader>rg`: Live grep on remote (Telescope)
-
-### Usage
-
-1. Press `<leader>rc` to connect - select a host from your SSH config
-2. Files mount to `~/.sshfs/<hostname>/` by default
-3. Use `<leader>rf` and `<leader>rg` to search mounted files
-4. Press `<leader>rd` to disconnect when done
+- Lua style: tabs, stylua (`.stylua.toml`); `require "x"` call style without parens is common.
+- New LSP server: add `vim.lsp.config.<name> = {...}` in `lspconfig.lua` and add it to `all_servers`; add the Mason package to mason-tool-installer if it should auto-install.
+- New formatter: add to `formatters_by_ft` in `conform.lua` (and Mason if needed).
+- New keymaps: plugin-specific ones go in the plugin spec's `keys` (so they also lazy-load the plugin); global ones in `mappings.lua`.
+- `lazy-lock.json` is gitignored.
 
 ## File Structure
 
 ```
 .
-├── init.lua                 # Bootstrap and entry point
+├── init.lua                    # Bootstrap and entry point
 ├── lua/
-│   ├── chadrc.lua          # NvChad configuration
-│   ├── mappings.lua        # Custom keybindings
-│   ├── options.lua         # Custom vim options
-│   ├── configs/            # Plugin configurations
-│   │   ├── lazy.lua        # Lazy.nvim config
-│   │   ├── lspconfig.lua   # LSP servers setup
-│   │   ├── null-ls.lua     # Diagnostics/formatting
-│   │   ├── conform.lua     # Format orchestration
-│   │   └── dap.lua         # Debug adapter protocol
+│   ├── chadrc.lua              # NvChad config (theme, hl overrides)
+│   ├── options.lua             # Vim options (tabs, width 4)
+│   ├── mappings.lua            # Global + DAP keybindings
+│   ├── themes/
+│   │   └── rosepine-moon.lua   # Custom base46 theme
+│   ├── utils/
+│   │   └── venv.lua            # Python interpreter resolver
+│   ├── configs/
+│   │   ├── lazy.lua            # lazy.nvim options
+│   │   ├── lspconfig.lua       # LSP servers (vim.lsp.config)
+│   │   ├── conform.lua         # Formatters
+│   │   ├── dap.lua             # Debug adapter + launch configs
+│   │   ├── treesitter.lua      # Parsers + treesitter start (main branch)
+│   │   ├── treesitter-textobjects.lua
+│   │   └── rainbow.lua         # Rainbow delimiters
 │   └── plugins/
-│       └── init.lua        # Plugin declarations
-└── lazy-lock.json          # Plugin version lock (gitignored)
+│       └── init.lua            # Plugin specs + Claude pane picker
+├── test/
+│   ├── run.sh                  # Headless smoke test runner
+│   └── smoke.lua               # Smoke test checks
+├── README.md                   # Overview and install
+├── CONFIG_SUMMARY.md           # Full plugin/keymap reference
+├── NOTES_INGEST.md             # Original design doc for notes RAG (now brain-rag)
+└── lazy-lock.json              # Plugin version lock (gitignored)
 ```
