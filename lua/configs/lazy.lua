@@ -1,5 +1,8 @@
 return {
 	defaults = { lazy = true },
+	-- Plugins marked dev = true load from ~/dev/<name> when it's there,
+	-- otherwise from GitHub (fallback)
+	dev = { path = "~/dev", fallback = true },
 	install = { colorscheme = { "nvchad" } },
 
 	ui = {

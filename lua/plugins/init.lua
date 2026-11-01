@@ -594,9 +594,12 @@ return {
 		},
 	},
 
-	-- Brain Rag Plugin
+	-- Brain Rag Plugin. dev = true: use ~/dev/brain-rag.nvim when it exists
+	-- (edits are live; update it with git pull), else lazy installs it from
+	-- GitHub and :Lazy update keeps it current (see dev in configs/lazy.lua).
 	{
-		dir = "~/dev/brain-rag.nvim",
+		"mukor/brain-rag.nvim",
+		dev = true,
 		dependencies = { "hrsh7th/nvim-cmp", "L3MON4D3/LuaSnip" },
 		-- Telekasten sets ft=telekasten on notes it opens; load for those too
 		ft = { "markdown", "telekasten" },
